@@ -1,55 +1,23 @@
-# This is a basic workflow to help you get started with Actions
+name: Release Charts
 
-name: CI
-
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
 on:
   push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    branches:
+      - master
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-20.04
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
+  release:
+    runs-on: ubuntu-latest
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - name: Checkout
-      uses: actions/checkout@v2
-      with:
-        path: chart
+      - name: Checkout
+        uses: actions/checkout@v1
 
-    - name: Checkout tools repo
-      uses: actions/checkout@v2
-      with:
-        repository: AuroTFP/AuroTFP.github.io
-        path: pages
-        ssh-key: ${{ secrets.key }}
-        ssh-strict: false
-        ssh-known-hosts: |
-          # github.com:22 SSH-2.0-babeld-b447314b
-          |1|y7ufDQYckhZpwMExyVspwZi0NKI=|WKqFTvnJ3RloSYS5Hc3PKyzLQ3g= ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
-    
-    # Runs a set of commands using the runners shell
-    - name: packge
-      run: |
-        curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
-        helm package chart
-        helm repo index . --url https://AuroTFP.github.io/helm/
-        mkdir -p pages/helm
-        cp chart/*.tgz pages/helm/
-        cp index.yaml pages/helm/
-        cd pages
-        git add helm
-        git commit -m .
-        git push
-        
-        
-        
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.0.0
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"

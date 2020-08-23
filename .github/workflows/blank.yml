@@ -28,7 +28,7 @@ jobs:
     - name: Checkout tools repo
       uses: actions/checkout@v2
       with:
-        repository: git@github.com/AuroTFP/AuroTFP.github.io.git
+        repository: AuroTFP/AuroTFP.github.io
         path: pages
         ssh-key: ${secrets.key}
     

@@ -30,7 +30,7 @@ jobs:
       with:
         repository: AuroTFP/AuroTFP.github.io
         path: pages
-        ssh-key: ${secrets.key}
+        ssh-key: ${{secrets.key}}
     
     # Runs a set of commands using the runners shell
     - name: packge
